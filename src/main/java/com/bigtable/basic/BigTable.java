@@ -1,4 +1,4 @@
-package com.bigtable;
+package com.bigtable.basic;
 
 import java.io.*;
 import java.nio.file.Files;

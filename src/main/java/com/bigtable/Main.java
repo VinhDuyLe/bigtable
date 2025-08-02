@@ -1,6 +1,6 @@
 package com.bigtable;
 
-import com.bigtable.BigTable;
+import com.bigtable.basic.BigTable;
 import java.io.IOException;
 
 public class Main {
