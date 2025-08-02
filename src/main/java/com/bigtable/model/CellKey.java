@@ -2,6 +2,7 @@ package com.bigtable.model;
 
 import java.util.Objects;
 
+// Key structure for the multidimensional sorted map
 public class CellKey implements Comparable<CellKey> {
     protected String rowKey;
     protected String columnKey;

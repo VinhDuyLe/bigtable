@@ -5,13 +5,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.io.IOException;
+
 import com.bigtable.model.CellKey;
 import com.bigtable.model.CellValue;
 
 public class BigTable {
-
-    // Key structure for the multidimensional sorted map
-
 
     // In-memory store
     private TreeMap<CellKey, CellValue> memTable;
@@ -44,6 +42,30 @@ public class BigTable {
         if (memTable.size() > 1000) {
             flushToSStable();
         }
+    }
+
+    // Get the latest value for a row and column
+    public byte[] get(String rowKey, String columnKey, long timestamp) {
+        // Check in-memory table
+        CellKey key = new CellKey(rowKey, columnKey, timestamp);
+        NavigableMap<CellKey, CellValue> subMap = memTable.headMap(key, true);
+        for (Map.Entry<CellKey, CellValue> entry : subMap.descendingMap().entrySet()) {
+            CellKey k = entry.getKey();
+            if (k.getRowKey().equals(rowKey) && k.getColumnKey().equals(columnKey) && !entry.getValue().isTombstone()) {
+                return entry.getValue().getValue();
+            }
+        }
+        // TODO: Check on SStable file system
+        return null;
+    }
+
+    // Delete a cell (mark as tombstone)
+    public void delete(String rowKey, String columnKey, long timestamp) throws IOException {
+        // Write to WAL
+        writeToWAL(rowKey, columnKey, timestamp, null, true);
+        // Update in-memory table
+        CellKey key = new CellKey(rowKey, columnKey, timestamp);
+        memTable.put(key, new CellValue(null, true));
     }
 
     // Write to write-head log
@@ -90,7 +112,8 @@ public class BigTable {
         if (!memTable.isEmpty()) {
             flushToSStable();
         }
-        walOutput.close();;
+        walOutput.close();
+        ;
     }
 
 }
