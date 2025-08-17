@@ -7,12 +7,18 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Encodes composite keys: [rowLen][row][familyId][qualLen][qualifier][timestampDesc(8)]
+ * Composite-key encoder used as SSTable key bytes.
+ * <p>
+ * Layout: varint(rowLen) | row | varint(familyId) | varint(qualifierLen) | qualifier | u64(descTimestamp)
+ * where descTimestamp = ~timestampMicros (big-endian), enabling newest-first ordering by bytes.
  */
 public final class KeyCodec {
     private KeyCodec() {
     }
 
+    /**
+     * Encode (rowKey, familyId, qualifier, timestamp) into a byte-sortable composite key.
+     */
     public static byte[] encodeCompositeKey(byte[] rowKey, int familyId, byte[] qualifier, long timestampMicros) {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();

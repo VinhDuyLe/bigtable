@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Build a block payload (no surrounding block header); entries use prefix compression
- * and a restart array at the end. Caller will wrap header+payload and write CRC
+ * Builds a single data block payload (no outer header/CRC).
+ * <p>
+ * Entries use prefix compression with periodic restart points to bound seek time.
+ * Appends at the end: varint(restartOffsets...) then varint(restartCount).
  */
 public final class BlockBuilder {
     private final int restartInterval;
@@ -24,13 +26,17 @@ public final class BlockBuilder {
         restarts.add(0);
     }
 
+    /**
+     * Append an entry with prefix compression.
+     * Header per entry: varint(shared), varint(nonShared), varint(valueLen), then key suffix and value bytes.
+     */
     public void add(byte[] key, byte[] value) throws IOException {
         int shared = 0;
         if (counter % restartInterval != 0) {
             shared = sharedPrefixLength(lastKey, key);
         } else {
             restarts.add(out.size());
-            estimatedSize += 4;
+            estimatedSize += 4; // rough accounting for restart offsets
         }
         int nonShared = key.length - shared;
         ByteArrayOutputStream header = new ByteArrayOutputStream();
@@ -53,6 +59,9 @@ public final class BlockBuilder {
         return i;
     }
 
+    /**
+     * Finish block by writing restart array and count; return final payload bytes.
+     */
     public byte[] finish() throws IOException {
         for (int off : restarts) {
             out.write(intToBytes(off));
@@ -61,6 +70,9 @@ public final class BlockBuilder {
         return out.toByteArray();
     }
 
+    /**
+     * Estimated encoded size so far (approximate; used to trigger flush at blockSize boundary).
+     */
     public int estimatedSize() {
         return estimatedSize + 4 * restarts.size() + 4;
     }
