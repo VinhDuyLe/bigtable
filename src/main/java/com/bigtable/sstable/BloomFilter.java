@@ -1,9 +1,6 @@
 package com.bigtable.sstable;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -53,6 +50,18 @@ public final class BloomFilter {
             if ((bits[byteIdx] & (1 << bit)) == 0) return false;
         }
         return true;
+    }
+
+    /**
+     * Return a compact on-disk representation identical to {@link #writeTo(File)} but in-memory.
+     */
+    public byte[] toByteArray() throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(8 + 1 + 4 + bits.length);
+        bos.write(longToBytes(MAGIC));
+        bos.write((byte) k);
+        bos.write(intToBytes(m));
+        bos.write(bits);
+        return bos.toByteArray();
     }
 
     /**
