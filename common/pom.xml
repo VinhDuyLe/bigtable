@@ -9,7 +9,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>core</artifactId>
+    <artifactId>common</artifactId>
     <packaging>jar</packaging>
-    <name>SSTABLE Core</name>
+    <name>sstable-common</name>
 </project>

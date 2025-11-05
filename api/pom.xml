@@ -4,25 +4,28 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.sstable</groupId>
+        <groupId>com.sstable.storage</groupId>
         <artifactId>sstable</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>flat</artifactId>
+    <artifactId>api</artifactId>
     <packaging>jar</packaging>
-    <name>sstable-flat</name>
+    <name>SSTable API</name>
+    <description>Core interfaces and contracts for SSTable implementations</description>
 
     <dependencies>
         <dependency>
-            <groupId>com.sstable</groupId>
-            <artifactId>core</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sstable</groupId>
-            <artifactId>bloom</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
         </dependency>
     </dependencies>
 </project>
